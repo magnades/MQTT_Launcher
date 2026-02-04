@@ -1,0 +1,3 @@
+# No se requieren librerías externas para la versión básica.
+# Si decides usar CustomTkinter, añade:
+# customtkinter

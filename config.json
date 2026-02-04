@@ -1,0 +1,12 @@
+{
+    "telegraf_url": "https://dl.influxdata.com/telegraf/releases/telegraf-1.37.1_windows_amd64.zip",
+    "influx_path": "C:\\Users\\ingci\\Desktop\\BORRAR\\PRUEBAS INSTALACION",
+    "influx_url": "https://dl.influxdata.com/influxdb/releases/influxdb3-core-3.8.0-windows_amd64.zip",
+    "influx_node": "Asus_ROG",
+    "influx_data_dir": "databases/shmdatabase",
+    "mosquitto_path": "C:\\Users\\ingci\\Desktop\\BORRAR\\PRUEBAS INSTALACION",
+    "mqtt_user": "juan",
+    "mqtt_pass": "pantoja",
+    "influx_token": "apiv3_1tDmD0cJDxyxtFRJ_Rw5-bmn4R3DYKEx8ulQxUkqXN2u6Ek1IqpDPvX9o8ELQxSVm-47n3IcHQh18lA3oRXCaA",
+    "influx_bucket": "shmdatabase"
+}
