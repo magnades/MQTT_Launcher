@@ -78,7 +78,7 @@ class MosquittoWindow(QWidget):
         def task(log_callback):
             success, _ = core.install_package("EclipseFoundation.Mosquitto", log_callback)
             if success:
-                core.configure_mosquitto_custom(target_dir, user, pwd, log_callback)
+                core.configure_mosquitto(target_dir, user, pwd, log_callback)
 
         self.worker = WorkerThread(task)
         self.worker.log_signal.connect(self.log)

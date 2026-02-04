@@ -3,6 +3,7 @@ import zipfile
 import urllib.request
 import shutil
 import ssl
+import re
 
 
 def download_and_extract(url, target_folder, log_callback=None):
@@ -237,3 +238,33 @@ if %errorlevel% neq 0 pause
         return True, bat_path
     except Exception as e:
         return False, f"Error escribiendo bat: {e}"
+
+
+def extract_token_from_file(target_folder, log_callback=None):
+    """
+    Lee el archivo credenciales_admin.txt, ignora los colores ANSI
+    y extrae el token que empieza por 'apiv3_'.
+    """
+    file_path = os.path.join(target_folder, "credenciales_admin.txt")
+
+    if not os.path.exists(file_path):
+        return None, "No se encontró el archivo 'credenciales_admin.txt'. Ejecuta el BAT primero."
+
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+
+        # Explicación del REGEX:
+        # apiv3_      -> Busca textualmente esto
+        # [a-zA-Z0-9\-_]+ -> Seguido de cualquier letra, número, guion o guion bajo
+        match = re.search(r'(apiv3_[a-zA-Z0-9\-_]+)', content)
+
+        if match:
+            token = match.group(1)
+            if log_callback: log_callback(f"Token detectado: {token[:10]}... (oculto)")
+            return True, token
+        else:
+            return False, "No se encontró ningún patrón 'apiv3_' en el archivo."
+
+    except Exception as e:
+        return False, str(e)

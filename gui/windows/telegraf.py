@@ -16,7 +16,20 @@ class TelegrafWindow(QWidget):
         dl_group = QGroupBox("1. Descarga")
         dl_layout = QVBoxLayout()
 
-        self.path_input = QLineEdit("C:\\Telegraf_Portable")
+        default_path = core.get_setting("telegraf_path")
+
+        if not default_path:
+            # Intentamos leer la ruta de mosquitto, si no, la de influx
+            neighbor_path = core.get_setting("mosquitto_path") or core.get_setting("influx_path")
+
+            if neighbor_path:
+                default_path = os.path.join(neighbor_path, "Telegraf_Portable")
+            else:
+                # Si no hay nada instalado aun, usamos el defecto
+                default_path = "C:\\Telegraf_Portable"
+
+        self.path_input = QLineEdit(default_path)
+
         self.btn_browse = QPushButton("Seleccionar Carpeta...")
         self.btn_browse.clicked.connect(self.select_folder)
 
@@ -27,6 +40,7 @@ class TelegrafWindow(QWidget):
 
         dl_layout.addWidget(QLabel("Carpeta:"))
         dl_layout.addWidget(self.path_input)
+        dl_layout.addWidget(self.btn_browse)
         dl_layout.addWidget(QLabel("URL de descarga (ZIP):"))
         dl_layout.addWidget(self.url_input)
         dl_group.setLayout(dl_layout)
@@ -40,9 +54,11 @@ class TelegrafWindow(QWidget):
 
         # Recuperamos lo guardado por InfluxWindow (o valores por defecto)
         saved_bucket = core.get_setting("influx_bucket", "shmdatabase")
+        saved_org = core.get_setting("influx_org", "docs")
         saved_token = core.get_setting("influx_token", "")
 
         self.input_bucket = QLineEdit(saved_bucket)
+        self.input_org = QLineEdit(saved_org)
         self.input_token = QLineEdit(saved_token)
         self.input_token.setPlaceholderText("Token InfluxDb (apiv3_...)")
 
@@ -93,6 +109,7 @@ class TelegrafWindow(QWidget):
         core.save_setting("influx_bucket", self.input_bucket.text())
         core.save_setting("mqtt_user", self.input_mqtt_user.text())
         core.save_setting("mqtt_pass", self.input_mqtt_pass.text())
+        core.save_setting("telegraf_path", self.path_input.text())
 
         self.btn_run.setEnabled(False)
 
