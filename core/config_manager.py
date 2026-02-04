@@ -118,13 +118,13 @@ def configure_telegraf(influx_url, influx_token, org, bucket, log_callback=None)
 
     config_content = f"""
 [agent]
-  interval = "10s"
+  interval = "1.0s"
   round_interval = true
-  metric_batch_size = 1000
-  metric_buffer_limit = 10000
+  metric_batch_size = 1200
+  metric_buffer_limit = 3600000
   collection_jitter = "0s"
-  flush_interval = "10s"
-  flush_jitter = "0s"
+  flush_interval = "1s"
+  flush_jitter = "0.1s"
   precision = ""
   debug = false
   quiet = false

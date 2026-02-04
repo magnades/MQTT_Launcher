@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from gui.windows.mosquitto import MosquittoWindow
 from gui.windows.influx import InfluxWindow
 from gui.windows.telegraf import TelegrafWindow
+from gui.windows.calculator import CalculatorWindow
 
 
 class MainWindow(QMainWindow):
@@ -32,9 +33,14 @@ class MainWindow(QMainWindow):
         btn_telegraf.setMinimumHeight(60)
         btn_telegraf.clicked.connect(self.open_telegraf)
 
+        btn_calculator = QPushButton("4. Calculator")
+        btn_calculator.setMinimumHeight(60)
+        btn_calculator.clicked.connect(self.open_calculator)
+
         layout.addWidget(btn_influx)
         layout.addWidget(btn_mosquitto)
         layout.addWidget(btn_telegraf)
+        layout.addWidget(btn_calculator)
         layout.addStretch()
 
         # Variable para mantener viva la ventana secundaria
@@ -50,4 +56,8 @@ class MainWindow(QMainWindow):
 
     def open_telegraf(self):
         self.sub_window = TelegrafWindow()
+        self.sub_window.show()
+
+    def open_calculator(self):
+        self.sub_window = CalculatorWindow()
         self.sub_window.show()

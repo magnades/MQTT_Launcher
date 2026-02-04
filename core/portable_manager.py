@@ -178,9 +178,13 @@ def setup_telegraf_portable(target_folder, influx_url, influx_token, org, bucket
 # --- CONFIGURACIÓN GENERADA AUTOMÁTICAMENTE ---
 
 [agent]
+  interval = "1.0s"
+  round_interval = true
+  metric_batch_size = 1200
+  metric_buffer_limit = 3600000
+  collection_jitter = "0s"
   flush_interval = "1s"
-  metric_batch_size = 1000
-  metric_buffer_limit = 20000
+  flush_jitter = "0.1s"
   omit_hostname = true
 
 # --- ENTRADA: MQTT (Mosquitto) ---
