@@ -178,14 +178,16 @@ def setup_telegraf_portable(target_folder, influx_url, influx_token, org, bucket
 # --- CONFIGURACIÓN GENERADA AUTOMÁTICAMENTE ---
 
 [agent]
-  interval = "1.0s"
+  # Ajustamos los intervalos para cumplir con "Batch writes" (Lotes)
+  interval = "10s"
   round_interval = true
-  metric_batch_size = 1200
+  metric_batch_size = 10000    # InfluxDB prefiere lotes grandes (hasta 10,000 líneas)
   metric_buffer_limit = 3600000
   collection_jitter = "0s"
-  flush_interval = "1s"
+  flush_interval = "10s"       # Enviamos cada 10s en lugar de 1s para no saturar la red HTTP
   flush_jitter = "0.1s"
-  omit_hostname = true
+  omit_hostname = true         # Esto cumple con no enviar basura extra (tagexclude)
+  precision = "1ns"            # Clave: El ESP32 envía nanosegundos al añadir "000000"
 
 # --- ENTRADA: MQTT (Mosquitto) ---
 [[inputs.mqtt_consumer]]
@@ -196,18 +198,18 @@ def setup_telegraf_portable(target_folder, influx_url, influx_token, org, bucket
   username = "{mqtt_user}"
   password = "{mqtt_pass}"
 
-  topics = ["shm/+/data"]
-  name_override = "shm_data"
+  # Escuchamos tanto los datos de los sensores como las estadísticas
+  topics = [
+    "shm/+/data",
+    "shm/+/stats"
+  ]
 
-  data_format = "json"
-  json_time_key = "ts"
-  json_time_format = "unix_ms"
-  json_timezone = "UTC"
-
-  # Parseo del Topic para extraer el device_id
-  [[inputs.mqtt_consumer.topic_parsing]]
-    topic = "shm/+/data"
-    tags  = "_/device_id/_"
+  data_format = "influx"
+  
+# --- PROCESAMIENTO OPCIONAL (Recomendado por la doc) ---
+# Elimina puntos duplicados exactos en caso de retransmisiones MQTT
+#[[processors.dedup]]
+    #dedup_interval = "10s"
 
 # --- SALIDA: INFLUXDB V2 ---
 [[outputs.influxdb_v2]]
@@ -215,6 +217,9 @@ def setup_telegraf_portable(target_folder, influx_url, influx_token, org, bucket
   token = "{influx_token}"
   bucket = "{bucket}"
   organization = "{org}"
+  
+  # OPTIMIZACIÓN CRÍTICA: Comprime el payload masivo de arrays hasta un 80%
+  content_encoding = "gzip"
 """
     try:
         with open(conf_path, "w") as f:
