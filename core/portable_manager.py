@@ -5,49 +5,52 @@ import shutil
 import ssl
 import re
 
-
 def download_and_extract(url, target_folder, log_callback=None):
-    """
-    Descarga un ZIP y lo descomprime en la carpeta destino.
-    """
     try:
-        # Configuración para evitar errores de certificados SSL en algunas redes
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
+        # Setup SSL context to avoid certificate errors on certain networks
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
 
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
 
-        # 1. Definir ruta temporal para el zip
-        filename = url.split('/')[-1]
-        zip_path = os.path.join(target_folder, filename)
+        # 1. Define temporary path for the zip file
+        file_name = url.split('/')[-1]
+        zip_file_path = os.path.join(target_folder, file_name)
 
-        if log_callback: log_callback(f"Descargando desde: {url}...")
+        if log_callback:
+            log_callback(f"Descargando desde: {url}...")
 
-        # --- CORRECCIÓN AQUÍ ---
-        # El orden correcto es: (URL, RUTA_LOCAL)
-        # Antes estaba al revés y por eso daba error "url type: c"
-        with urllib.request.urlopen(url, context=ctx) as response, open(zip_path, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
+        # --- FIX: Create a request object with a standard User-Agent ---
+        request_headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        http_request = urllib.request.Request(url, headers=request_headers)
 
-        if log_callback: log_callback("Descarga completada. Descomprimiendo...")
+        # Pass the http_request object instead of the raw string url
+        with urllib.request.urlopen(http_request, context=ssl_context) as http_response, open(zip_file_path, 'wb') as output_file:
+            shutil.copyfileobj(http_response, output_file)
 
-        # 3. Descomprimir
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(target_folder)
+        if log_callback:
+            log_callback("Descarga completada. Descomprimiendo...")
 
-        # 4. Limpieza (Borrar el zip para ahorrar espacio)
+        # 3. Extract the downloaded zip file
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_reference:
+            zip_reference.extractall(target_folder)
+
+        # 4. Cleanup (remove the zip file to save space)
         try:
-            os.remove(zip_path)
+            os.remove(zip_file_path)
         except:
-            pass  # Si no se puede borrar, no es crítico
+            pass  # If it cannot be deleted, it is not critical
 
-        if log_callback: log_callback("Descompresión finalizada.")
+        if log_callback:
+            log_callback("Descompresión finalizada.")
         return True, "Proceso completado"
 
-    except Exception as e:
-        return False, str(e)
+    except Exception as error_msg:
+        return False, str(error_msg)
 
 
 def create_launcher_bat(target_folder, exe_name, log_callback=None):

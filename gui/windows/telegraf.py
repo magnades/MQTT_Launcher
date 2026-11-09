@@ -34,7 +34,7 @@ class TelegrafWindow(QWidget):
         self.btn_browse.clicked.connect(self.select_folder)
 
         # --- CAMBIO AQUÍ: CARGAR URL GUARDADA O USAR DEFECTO ---
-        saved_url = core.get_setting("telegraf_url","https://dl.influxdata.com/telegraf/releases/telegraf-1.37.1_windows_amd64.zip")
+        saved_url = core.get_setting("telegraf_url","https://dl.influxdata.com/telegraf/releases/telegraf-1.40.3_windows_amd64.zip")
         self.url_input = QLineEdit(saved_url)
         self.url_input.setPlaceholderText("Pega aquí el link de descarga del ZIP")
 

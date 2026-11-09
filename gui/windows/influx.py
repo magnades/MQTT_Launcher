@@ -33,7 +33,7 @@ class InfluxWindow(QWidget):
         layout_download.addWidget(self.path_input)
         layout_download.addWidget(btn_browse)
 
-        default_url = "https://dl.influxdata.com/influxdb/releases/influxdb3-core-3.8.0-windows_amd64.zip"
+        default_url = "https://dl.influxdata.com/influxdb/releases/influxdb3-core-3.12.2-windows_amd64.zip"
         saved_url = core.get_setting("influx_url", default_url)
 
         self.url_input = QLineEdit(saved_url)
